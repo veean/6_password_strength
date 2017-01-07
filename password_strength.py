@@ -2,9 +2,11 @@ import getpass
 import requests
 
 
+SPECIAL_CHARS = ['!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '_', '+', '-', '/', ':', ';', '=']
+
+
 def get_password_strength(password):
     strength_state = 0
-    special_char_edge = 126
 
     if len(password) >= 8:
         strength_state += 2
@@ -14,7 +16,7 @@ def get_password_strength(password):
         strength_state += 1
     if any([symbol.isdigit() for symbol in password]):
         strength_state += 1
-    if any([ord(symbol) < special_char_edge for symbol in password]):
+    if SPECIAL_CHARS in password:
         strength_state += 2
     if getpass.getuser() not in password:
         strength_state += 1
