@@ -1,34 +1,33 @@
 import getpass
 import requests
 import re
+import sys
+import os
 
 
 DEFAULT_PASSWORDS_LIST_URL = 'https://wiki.skullsecurity.org/images/c/ca/500-worst-passwords.txt'
 
 
 def check_bad_passwords_online(password_to_check):
-    # url = 'https://wiki.skullsecurity.org/images/c/ca/500-worst-passwords.txt'  # simple list of 500 bad passes
-    try:
-        r = requests.get(DEFAULT_PASSWORDS_LIST_URL).text.splitlines()
-        for item in r:
-            if password_to_check in item:
-                return True
-    except requests.exceptions.ConnectionError:
-        return False
+        passwords_list = requests.get(DEFAULT_PASSWORDS_LIST_URL).text.splitlines()
+        if password_to_check not in passwords_list:
+            return True
 
 
 def get_bad_passwords_from_file(filepath):
-    try:
-        with open(filepath, 'r') as data:
-            bad_passwords = data.read().split("\n")
-            return bad_passwords
-    except FileNotFoundError:
-        return None
+    if os.path.exists(filepath):
+        try:
+            with open(filepath, 'r') as data:
+                bad_passwords = data.read().split("\n")
+                return bad_passwords
+        except FileNotFoundError:
+            return None
 
 
 def check_bad_passwords_offline(password, bad_passwords):
-    if password not in bad_passwords:
-        return
+    if bad_passwords:
+        if password not in bad_passwords:
+            return True
 
 
 def has_upper_and_lower_symbols(password):
@@ -38,25 +37,46 @@ def has_upper_and_lower_symbols(password):
         return True
 
 
+def has_spec_chars(password):
+    if re.findall(r'[!@#$%^&*><}{]', password):
+        return True
+
+
+def has_digits(password):
+    if any([symbol.isdigit() for symbol in password]):
+        return True
+
+
 def get_password_strength(password, blacklist=None):
     strength_state = 1
 
     if len(password) >= 8:
         strength_state += 2
+
         if has_upper_and_lower_symbols(password):
             strength_state += 2
-        if any([symbol.isdigit() for symbol in password]):
+        if has_digits(password):
             strength_state += 1
-        if re.findall(r'[!@#$%^&*><}{]', password):
+        if has_spec_chars(password):
             strength_state += 2
-        if blacklist:
 
-            strength_state += 2
+        if blacklist:
+            if check_bad_passwords_offline(password, get_bad_passwords_from_file(blacklist)):
+                strength_state += 2
+        else:
+            if check_bad_passwords_online(password):
+                strength_state += 2
+
         return strength_state
+
     else:
         return 1
 
 
 if __name__ == '__main__':
-    user_password = getpass.getpass('Введите ваш пароль\n')
-    print(get_password_strength(user_password))
+    user_password = getpass.getpass('Введите ваш пароль : ')
+    try:
+        pass_list = sys.argv[1]
+    except IndexError:
+        pass_list = None
+    print('Сложность пароля по 10-бальной шкале: {} балл(ов)'.format(get_password_strength(user_password, pass_list)))
