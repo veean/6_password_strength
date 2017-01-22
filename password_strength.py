@@ -10,8 +10,7 @@ DEFAULT_PASSWORDS_LIST_URL = 'https://wiki.skullsecurity.org/images/c/ca/500-wor
 
 def check_bad_passwords_online(password_to_check):
         passwords_list = requests.get(DEFAULT_PASSWORDS_LIST_URL).text.splitlines()
-        if password_to_check not in passwords_list:
-            return True
+        return password_to_check not in passwords_list
 
 
 def get_bad_passwords_from_file(filepath):
@@ -26,25 +25,22 @@ def get_bad_passwords_from_file(filepath):
 
 def check_bad_passwords_offline(password, bad_passwords):
     if bad_passwords:
-        if password not in bad_passwords:
-            return True
+        return password not in bad_passwords
+
 
 
 def has_upper_and_lower_symbols(password):
     upper_check = any([symbol.isupper() for symbol in password])
     lower_check = any([symbol.islower() for symbol in password])
-    if upper_check and lower_check:
-        return True
+    return bool(upper_check and lower_check)
 
 
 def has_spec_chars(password):
-    if re.findall(r'[!@#$%^&*><}{]', password):
-        return True
+    return bool(re.findall(r'[!@#$%^&*><}{]', password))
 
 
 def has_digits(password):
-    if any([symbol.isdigit() for symbol in password]):
-        return True
+    return any([symbol.isdigit() for symbol in password])
 
 
 def get_password_strength(password, blacklist=None):

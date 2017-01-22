@@ -5,10 +5,12 @@ Cкрипт вычисляет сложность пароля, поданног
 *  На вход скрипту можно подать файл (необязательный параметр), c плохими (часто используемыми) паролями.
 * По умолчанию список плохих паролей подсматривается  [тут](https://wiki.skullsecurity.org/images/c/ca/500-worst-passwords.txt)
 
-##Зависимости
 
-* python 3.5 и выше
+##Установка скрипта и зависимостей
 
+    git clone https://github.com/veean/13_cinemas.git
+    cd 13_cinemas
+    pip install -r requirements.txt
 
 ##Применение
 
