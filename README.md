@@ -8,7 +8,7 @@ Cкрипт вычисляет сложность пароля, поданног
 
 ##Установка скрипта и зависимостей
 
-    git clone https://github.com/veean/13_cinemas.git
+    git clone https://github.com/veean/6_password_strength.git
     cd 13_cinemas
     pip install -r requirements.txt
 
