@@ -43,6 +43,13 @@ def has_digits(password):
     return any([symbol.isdigit() for symbol in password])
 
 
+def check_in_blacklists(password, blacklist=None):
+    if blacklist:
+        return check_bad_passwords_offline(password, get_bad_passwords_from_file(blacklist))
+    else:
+        return check_bad_passwords_online(password)
+
+
 def get_password_strength(password, blacklist=None):
     strength_state = 1
 
@@ -55,18 +62,10 @@ def get_password_strength(password, blacklist=None):
             strength_state += 1
         if has_spec_chars(password):
             strength_state += 2
-
-        if blacklist:
-            if check_bad_passwords_offline(password, get_bad_passwords_from_file(blacklist)):
-                strength_state += 2
-        else:
-            if check_bad_passwords_online(password):
+        if check_in_blacklists(password, blacklist):
                 strength_state += 2
 
-        return strength_state
-
-    else:
-        return 1
+    return strength_state
 
 
 if __name__ == '__main__':
@@ -75,4 +74,5 @@ if __name__ == '__main__':
         pass_list = sys.argv[1]
     except IndexError:
         pass_list = None
-    print('Сложность пароля по 10-бальной шкале: {} балл(ов)'.format(get_password_strength(user_password, pass_list)))
+    print('Сложность пароля по 10-бальной шкале: {} '.format(get_password_strength(user_password, pass_list)))
+
